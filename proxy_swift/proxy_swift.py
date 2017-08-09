@@ -23,7 +23,7 @@ class ProxySwift(object):
         self.url_get_task = self.host + '/task/get'
         self.url_change_ip = self.host + '/ip/change'
 
-    def get_ip(self, pool_id=1, interface_id=None):
+    def get_ip(self, interface_id=None, pool_id=1):
         return self._requests_get(
             url=self.url_get_ip,
             data={
@@ -33,7 +33,7 @@ class ProxySwift(object):
             }
         )
 
-    def change_ip(self, interface_id, _filter=24):
+    def change_ip(self, interface_id, pool_id=1, _filter=24):
         task_id = self._requests_get(
             url=self.url_change_ip,
             data={
@@ -52,7 +52,7 @@ class ProxySwift(object):
                 logger.error(data)
                 continue
 
-            ip_port = self.get_ip(interface_id=interface_id)
+            ip_port = self.get_ip(pool_id=pool_id, interface_id=interface_id)
             return ip_port[0]
 
     def _requests_get(self, url, data):
@@ -91,6 +91,5 @@ if __name__ == '__main__':
     _data = _proxy_swift.get_ip(pool_id=1)  # 获取1号池所有ip
     print(json.dumps(obj=_data, indent='\t', ensure_ascii=False))
 
-    _proxy_swift.change_ip(interface_id=34)  # 更换ip
-    _data = _proxy_swift.get_ip(pool_id=1, interface_id=34)
+    _data = _proxy_swift.change_ip(interface_id=23)  # 更换ip
     print(json.dumps(obj=_data, indent='\t', ensure_ascii=False))
