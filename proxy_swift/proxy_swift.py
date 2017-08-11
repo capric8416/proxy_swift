@@ -34,7 +34,26 @@ class ProxySwift(object):
         )
 
     def change_ip(self, interface_id, pool_id=1, _filter=24):
-        task_id = self._requests_get(
+        task_id = self._change_ip(interface_id=interface_id, _filter=_filter)
+
+        i = 1
+        while True:
+            time.sleep(i % 2 + 1)
+
+            data = self._get_task(task_id)
+            if data['status'] == 'failed':
+                logger.error(data)
+                task_id = self._change_ip(interface_id=interface_id, _filter=_filter)
+                continue
+            elif data['status'] != 'success':
+                logger.warning(data)
+                continue
+
+            ip_port = self.get_ip(pool_id=pool_id, interface_id=interface_id)
+            return ip_port[0]
+
+    def _change_ip(self, interface_id, _filter):
+        return self._requests_get(
             url=self.url_change_ip,
             data={
                 'server_id': self.server_id,
@@ -42,18 +61,6 @@ class ProxySwift(object):
                 'filter': _filter,
             }
         )['taskId']
-
-        i = 1
-        while True:
-            time.sleep(i % 2 + 1)
-
-            data = self._get_task(task_id)
-            if data['status'] != 'success':
-                logger.error(data)
-                continue
-
-            ip_port = self.get_ip(pool_id=pool_id, interface_id=interface_id)
-            return ip_port[0]
 
     def _requests_get(self, url, data):
         source_data = {
@@ -91,5 +98,3 @@ if __name__ == '__main__':
     _data = _proxy_swift.get_ip(pool_id=1)  # 获取1号池所有ip
     print(json.dumps(obj=_data, indent='\t', ensure_ascii=False))
 
-    _data = _proxy_swift.change_ip(interface_id=23)  # 更换ip
-    print(json.dumps(obj=_data, indent='\t', ensure_ascii=False))
