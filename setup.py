@@ -11,7 +11,7 @@ requirements = [
 
 setup(
     name='proxy_swift',
-    version='1.1',
+    version='1.2',
     description="A Python Package for ProxySwift",
     long_description='',
     author="liuchang, capric",
@@ -26,12 +26,11 @@ setup(
     zip_safe=False,
     keywords='proxy_swift',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: LGPL License',
         'Natural Language :: English, Chinese',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
 )
