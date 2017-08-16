@@ -95,6 +95,15 @@ class ProxySwift(object):
                 time.sleep(i % 2 + 1)
 
     def _requests_get(self, url, data):
+        while True:
+            try:
+                source_data = self._requests_prepare(data=data)
+                return requests.get(url, params=source_data, verify=False, json=True).json()
+            except Exception as e:
+                self._log('error', inspect.currentframe().f_code.co_name, e)
+                time.sleep(2)
+
+    def _requests_prepare(self, data):
         source_data = {
             'partner_id': self.partner_id,
             'timestamp': int(time.time())
@@ -115,7 +124,7 @@ class ProxySwift(object):
         sign = md_5.hexdigest()
         source_data.update({'sign': sign})
 
-        return requests.get(url, params=source_data, verify=False, json=True).json()
+        return source_data
 
     def _log(self, level, method_name, message):
         return getattr(logger, level)(f'{self.__class__.__name__}.{method_name}: {message}')
@@ -127,5 +136,17 @@ if __name__ == '__main__':
     _data = _proxy_swift.get_ip(pool_id=1)  # 获取1号池所有ip
     print(json.dumps(obj=_data, indent='\t', ensure_ascii=False))
 
-    _data = _proxy_swift.change_ip(interface_id=23)  # 更换23号ip
-    print(json.dumps(obj=_data, indent='\t', ensure_ascii=False))
+    # _data = _proxy_swift.change_ip(interface_id=23)  # 更换23号ip
+    # print(json.dumps(obj=_data, indent='\t', ensure_ascii=False))
+
+    from multiprocessing.dummy import Pool as ThreadPool
+
+    def _change(item):
+        tmp = _proxy_swift.change_ip(interface_id=item['id'])
+        print(json.dumps(obj=tmp, indent='\t', ensure_ascii=False))
+
+    while True:
+        pool = ThreadPool(len(_data))
+        pool.map(_change, _data)
+        pool.close()
+        pool.join()
