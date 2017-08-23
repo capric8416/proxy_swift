@@ -6,6 +6,7 @@ import inspect
 import json
 import logging
 import time
+from multiprocessing.dummy import Pool as ThreadPool
 
 import requests
 
@@ -14,7 +15,14 @@ requests.packages.urllib3.disable_warnings()
 
 
 class ProxySwift(object):
-    def __init__(self, server_id=2, secret_key='Kg6t55fc39FQRJuh92BwZBMXyK3sWFkJ', partner_id='2017072514450843'):
+    def __init__(self, server_id, secret_key, partner_id):
+        if not (isinstance(server_id, int) and server_id > 0):
+            raise Exception('Please provide valid server_id')
+        if not (isinstance(secret_key, str) and secret_key):
+            raise Exception('Please provide valid secret_key')
+        if not (isinstance(partner_id, str) and partner_id):
+            raise Exception('Please provide valid partner_id')
+
         self.server_id = server_id
         self.secret_key = secret_key
         self.partner_id = partner_id
@@ -131,16 +139,18 @@ class ProxySwift(object):
 
 
 if __name__ == '__main__':
-    _proxy_swift = ProxySwift()
+    # server_id, secret_key, partner_id参数请修改为自己的
+    _proxy_swift = ProxySwift(server_id=0, secret_key='请填充secret_key', partner_id='请填充partner_id')
 
-    _data = _proxy_swift.get_ip(pool_id=1)  # 获取1号池所有ip
+    # 获取1号池所有ip
+    _data = _proxy_swift.get_ip(pool_id=1)
     print(json.dumps(obj=_data, indent='\t', ensure_ascii=False))
 
-    # _data = _proxy_swift.change_ip(interface_id=23)  # 更换23号ip
+    # # 更换1号池1号ip
+    # _data = _proxy_swift.change_ip(pool_id=1, interface_id=1)
     # print(json.dumps(obj=_data, indent='\t', ensure_ascii=False))
 
-    from multiprocessing.dummy import Pool as ThreadPool
-
+    # 更换1号池所有ip
     def _change(item):
         tmp = _proxy_swift.change_ip(interface_id=item['id'])
         print(json.dumps(obj=tmp, indent='\t', ensure_ascii=False))
