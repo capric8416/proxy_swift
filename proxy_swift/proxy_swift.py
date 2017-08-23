@@ -3,10 +3,8 @@
 
 import hashlib
 import inspect
-import json
 import logging
 import time
-from multiprocessing.dummy import Pool as ThreadPool
 
 import requests
 
@@ -44,7 +42,10 @@ class ProxySwift(object):
                 }
             )
             if result['code'] == 200:
-                return result['data']
+                result = result['data']
+                if interface_id:
+                    result = (result or [{}])[0]
+                return result
             else:
                 self._log('error', inspect.currentframe().f_code.co_name, result)
                 time.sleep(i % 2 + 1)
@@ -60,7 +61,7 @@ class ProxySwift(object):
                 task_id = self._change_ip(interface_id=interface_id, _filter=_filter)
                 continue
 
-            return self.get_ip(pool_id=pool_id, interface_id=interface_id)[0]
+            return self.get_ip(pool_id=pool_id, interface_id=interface_id)
 
     def _change_ip(self, interface_id, _filter):
         i = 1
@@ -108,7 +109,7 @@ class ProxySwift(object):
                 source_data = self._requests_prepare(data=data)
                 return requests.get(url, params=source_data, verify=False, json=True).json()
             except Exception as e:
-                self._log('error', inspect.currentframe().f_code.co_name, e)
+                self._log('exception', inspect.currentframe().f_code.co_name, e)
                 time.sleep(2)
 
     def _requests_prepare(self, data):
@@ -136,27 +137,3 @@ class ProxySwift(object):
 
     def _log(self, level, method_name, message):
         return getattr(logger, level)(f'{self.__class__.__name__}.{method_name}: {message}')
-
-
-if __name__ == '__main__':
-    # server_id, secret_key, partner_id参数请修改为自己的
-    _proxy_swift = ProxySwift(server_id=0, secret_key='请填充secret_key', partner_id='请填充partner_id')
-
-    # 获取1号池所有ip
-    _data = _proxy_swift.get_ip(pool_id=1)
-    print(json.dumps(obj=_data, indent='\t', ensure_ascii=False))
-
-    # # 更换1号池1号ip
-    # _data = _proxy_swift.change_ip(pool_id=1, interface_id=1)
-    # print(json.dumps(obj=_data, indent='\t', ensure_ascii=False))
-
-    # 更换1号池所有ip
-    def _change(item):
-        tmp = _proxy_swift.change_ip(interface_id=item['id'])
-        print(json.dumps(obj=tmp, indent='\t', ensure_ascii=False))
-
-    while True:
-        pool = ThreadPool(len(_data))
-        pool.map(_change, _data)
-        pool.close()
-        pool.join()
