@@ -13,17 +13,17 @@ requests.packages.urllib3.disable_warnings()
 
 
 class ProxySwift(object):
-    def __init__(self, server_id, secret_key, partner_id):
-        if not (isinstance(server_id, int) and server_id > 0):
-            raise Exception('Please provide valid server_id')
+    def __init__(self, secret_key, partner_id, server_id=None):
         if not (isinstance(secret_key, str) and secret_key):
             raise Exception('Please provide valid secret_key')
         if not (isinstance(partner_id, str) and partner_id):
             raise Exception('Please provide valid partner_id')
+        if not (server_id is None or server_id == '' or (isinstance(server_id, int) and server_id > 0)):
+            raise Exception('Please provide valid server_id')
 
-        self.server_id = server_id
         self.secret_key = secret_key
         self.partner_id = partner_id
+        self.server_id = server_id or ''
 
         self.host = 'https://api.proxyswift.com'
         self.url_get_ip = self.host + '/ip/get'

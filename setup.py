@@ -11,7 +11,7 @@ requirements = [
 
 setup(
     name='proxy_swift',
-    version='1.5',
+    version='1.6',
     description="A Python Package for ProxySwift",
     long_description='',
     author="liuchang, capric",
