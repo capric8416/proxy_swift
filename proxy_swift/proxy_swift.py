@@ -5,6 +5,7 @@ import hashlib
 import inspect
 import logging
 import time
+from datetime import datetime, timedelta
 
 import requests
 
@@ -82,9 +83,11 @@ class ProxySwift(object):
                 self._log('error', inspect.currentframe().f_code.co_name, result)
                 time.sleep(i % 2 + 1)
 
-    def _get_task(self, task_id):
+    def _get_task(self, task_id, timeout=300):
+        end = datetime.now() + timedelta(seconds=timeout)
+
         i = 1
-        while True:
+        while datetime.now() <= end:
             result = self._requests_get(
                 url=self.url_get_task,
                 data={'task_id': task_id}
@@ -103,11 +106,14 @@ class ProxySwift(object):
                 self._log('error', inspect.currentframe().f_code.co_name, result)
                 time.sleep(i % 2 + 1)
 
+        self._log('error', inspect.currentframe().f_code.co_name, f'timeout after {timeout} seconds')
+        return False
+
     def _requests_get(self, url, data):
         while True:
             try:
                 source_data = self._requests_prepare(data=data)
-                return requests.get(url, params=source_data, verify=False, json=True).json()
+                return requests.get(url, params=source_data, verify=False, json=True, timeout=15).json()
             except Exception as e:
                 self._log('exception', inspect.currentframe().f_code.co_name, e)
                 time.sleep(2)
