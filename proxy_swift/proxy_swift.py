@@ -51,6 +51,8 @@ class ProxySwift(object):
                 self._log('error', inspect.currentframe().f_code.co_name, result)
                 time.sleep(i % 2 + 1)
 
+            i += 1
+
     def change_ip(self, interface_id, pool_id=1, _filter=24):
         task_id = self._change_ip(interface_id=interface_id, _filter=_filter)
 
@@ -61,6 +63,8 @@ class ProxySwift(object):
             if not self._get_task(task_id=task_id):
                 task_id = self._change_ip(interface_id=interface_id, _filter=_filter)
                 continue
+
+            i += 1
 
             return self.get_ip(pool_id=pool_id, interface_id=interface_id)
 
@@ -82,6 +86,8 @@ class ProxySwift(object):
             else:
                 self._log('error', inspect.currentframe().f_code.co_name, result)
                 time.sleep(i % 2 + 1)
+
+            i += 1
 
     def _get_task(self, task_id, timeout=300):
         end = datetime.now() + timedelta(seconds=timeout)
@@ -105,6 +111,8 @@ class ProxySwift(object):
             else:
                 self._log('error', inspect.currentframe().f_code.co_name, result)
                 time.sleep(i % 2 + 1)
+
+            i += 1
 
         self._log('error', inspect.currentframe().f_code.co_name, f'timeout after {timeout} seconds')
         return False
