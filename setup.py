@@ -1,17 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import ast
-from setuptools import setup, find_packages
 
+from setuptools import setup, find_packages
 
 requirements = [
     'requests>=2.18.3',
+    'aiohttp>=2.2.5',
+    'aiohttp_session>=1.0.0',
+    'aioredis>=0.3.3',
 ]
 
 setup(
     name='proxy_swift',
-    version='1.7',
+    version='1.8',
     description="A Python Package for ProxySwift",
     long_description='',
     author="liuchang, capric",

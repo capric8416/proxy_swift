@@ -3,14 +3,16 @@
 
 import hashlib
 import inspect
-import logging
 import time
 from datetime import datetime, timedelta
 
 import requests
 
-logger = logging.getLogger(__name__)
+from .logger import get_logger
+
 requests.packages.urllib3.disable_warnings()
+
+LOGGER = get_logger(name=__name__)
 
 
 class ProxySwift(object):
@@ -49,8 +51,8 @@ class ProxySwift(object):
                 return result
             else:
                 self._log('error', inspect.currentframe().f_code.co_name, result)
-                time.sleep(i % 2 + 1)
 
+            time.sleep(i % 2 + 1)
             i += 1
 
     def change_ip(self, interface_id, pool_id=1, _filter=24):
@@ -85,8 +87,8 @@ class ProxySwift(object):
                 return task_id
             else:
                 self._log('error', inspect.currentframe().f_code.co_name, result)
-                time.sleep(i % 2 + 1)
 
+            time.sleep(i % 2 + 1)
             i += 1
 
     def _get_task(self, task_id, timeout=300):
@@ -110,8 +112,8 @@ class ProxySwift(object):
                     self._log('warning', inspect.currentframe().f_code.co_name, result)
             else:
                 self._log('error', inspect.currentframe().f_code.co_name, result)
-                time.sleep(i % 2 + 1)
 
+            time.sleep(i % 2 + 1)
             i += 1
 
         self._log('error', inspect.currentframe().f_code.co_name, f'timeout after {timeout} seconds')
@@ -150,4 +152,5 @@ class ProxySwift(object):
         return source_data
 
     def _log(self, level, method_name, message):
-        return getattr(logger, level)(f'{self.__class__.__name__}.{method_name}: {message}')
+        return getattr(LOGGER, level)(f'{self.__class__.__name__}.{method_name}: {message}')
+

@@ -4,16 +4,17 @@
 import asyncio
 import hashlib
 import inspect
-import logging
 import time
 from datetime import datetime, timedelta
 
 import aiohttp
 
-logger = logging.getLogger(__name__)
+from .logger import get_logger
+
+LOGGER = get_logger(name=__name__)
 
 
-class AsyncProxySwift(object):
+class AsyncProxyClient(object):
     def __init__(self, secret_key, partner_id, server_id=None):
         if not (isinstance(secret_key, str) and secret_key):
             raise Exception('Please provide valid secret_key')
@@ -49,8 +50,8 @@ class AsyncProxySwift(object):
                 return result
             else:
                 self._log('error', inspect.currentframe().f_code.co_name, result)
-                asyncio.sleep(i % 2 + 1)
 
+            await asyncio.sleep(i % 2 + 1)
             i += 1
 
     async def change_ip(self, interface_id, pool_id=1, _filter=24):
@@ -58,7 +59,7 @@ class AsyncProxySwift(object):
 
         i = 1
         while True:
-            asyncio.sleep(i % 2 + 1)
+            await asyncio.sleep(i % 2 + 1)
 
             if not await self._get_task(task_id=task_id):
                 task_id = await self._change_ip(interface_id=interface_id, _filter=_filter)
@@ -85,8 +86,8 @@ class AsyncProxySwift(object):
                 return task_id
             else:
                 self._log('error', inspect.currentframe().f_code.co_name, result)
-                asyncio.sleep(i % 2 + 1)
 
+            await asyncio.sleep(i % 2 + 1)
             i += 1
 
     async def _get_task(self, task_id, timeout=300):
@@ -110,8 +111,8 @@ class AsyncProxySwift(object):
                     self._log('warning', inspect.currentframe().f_code.co_name, result)
             else:
                 self._log('error', inspect.currentframe().f_code.co_name, result)
-                asyncio.sleep(i % 2 + 1)
 
+            await asyncio.sleep(i % 2 + 1)
             i += 1
 
         self._log('error', inspect.currentframe().f_code.co_name, f'timeout after {timeout} seconds')
@@ -126,7 +127,7 @@ class AsyncProxySwift(object):
                         return await resp.json()
                 except Exception as e:
                     self._log('exception', inspect.currentframe().f_code.co_name, e)
-                    asyncio.sleep(3)
+                    await asyncio.sleep(3)
 
     def _prepare(self, data):
         source_data = {
@@ -152,4 +153,4 @@ class AsyncProxySwift(object):
         return source_data
 
     def _log(self, level, method_name, message):
-        return getattr(logger, level)(f'{self.__class__.__name__}.{method_name}: {message}')
+        return getattr(LOGGER, level)(f'{self.__class__.__name__}.{method_name}: {message}')
