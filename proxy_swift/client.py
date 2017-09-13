@@ -32,7 +32,7 @@ class AsyncProxyClient(object):
         self.url_get_task = self.host + '/task/get'
         self.url_change_ip = self.host + '/ip/change'
 
-    async def get_ip(self, interface_id=None, pool_id=1):
+    async def get_ip(self, interface_id=None, pool_id=3):
         i = 1
         while True:
             result = await self._request(
@@ -54,7 +54,7 @@ class AsyncProxyClient(object):
             await asyncio.sleep(i % 2 + 1)
             i += 1
 
-    async def change_ip(self, interface_id, pool_id=1, _filter=24):
+    async def change_ip(self, interface_id, pool_id=3, _filter=24):
         task_id = await self._change_ip(interface_id=interface_id, _filter=_filter)
 
         i = 1

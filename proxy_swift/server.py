@@ -7,7 +7,6 @@ import json
 import os
 import time
 import uuid
-from datetime import datetime
 from urllib import parse
 
 import aioredis
@@ -85,7 +84,7 @@ class ProxyView(web.View):
     @staticmethod
     def timestamp():
         """获取当前时间戳"""
-        return int(time.mktime(datetime.now().timetuple()))
+        return int(time.time())
 
     @classmethod
     async def interfaces(cls):
@@ -254,15 +253,16 @@ class RestartView(ProxyView):
             await self.execute(redis, 'del', *keys)
 
             _proxy = [item for item in await self.get_ip() if item['id'] <= 56]
+            _interfaces = [item['id'] for item in _proxy]
 
-            await self.execute(redis, 'sadd', RedisKey.all_interface, *[item['id'] for item in _proxy])
+            await self.execute(redis, 'sadd', RedisKey.all_interface, *_interfaces)
 
             if self.request.query.get('full'):
                 _proxy = await self.change_ip()
 
             await self.update_all_proxy(redis=redis, items=_proxy)
 
-        return web.json_response({})
+        return web.json_response({'interfaces': _interfaces})
 
 
 class BackgroundTasks(object):
