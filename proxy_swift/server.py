@@ -208,7 +208,7 @@ class GetIpView(ProxyView):
                 _proxy = json.loads(proxy)
 
                 if await self.execute(redis, 'sismember', key_my_proxy, _proxy['ip']):
-                    await self.execute(redis, 'sadd', RedisKey.available_interface, _proxy['ip'])
+                    await self.execute(redis, 'sadd', RedisKey.available_interface, interface)
                 else:
                     await self.update_one_proxy(
                         redis=redis, key_my_proxy=key_my_proxy, current_proxy=_proxy,
