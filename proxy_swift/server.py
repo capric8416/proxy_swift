@@ -3,19 +3,22 @@
 
 import asyncio
 import inspect
-import json
+import ujson as json
 import os
 import time
 import uuid
 from urllib import parse
 
 import aioredis
+import uvloop
 from aiohttp import web
 from aiohttp_session import get_session, setup
 from aiohttp_session.redis_storage import RedisStorage
 
 from .client import AsyncProxyClient
 from .logger import get_logger
+
+asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 MAX_AGE = 3600
 PROXY_CLIENT = None
