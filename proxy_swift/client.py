@@ -27,7 +27,7 @@ class AsyncProxyClient(object):
         self.partner_id = partner_id
         self.server_id = server_id or ''
 
-        self.host = 'https://api.proxyswift.com.'
+        self.host = 'https://api.proxyswift.com:88'
         self.url_get_ip = self.host + '/ip/get'
         self.url_get_task = self.host + '/task/get'
         self.url_change_ip = self.host + '/ip/change'
