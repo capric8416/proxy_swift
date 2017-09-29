@@ -119,7 +119,7 @@ class AsyncProxyClient(object):
         return False
 
     async def _request(self, url, data):
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False)) as session:
             while True:
                 try:
                     source_data = self._prepare(data=data)
